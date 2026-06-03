@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Google Keep Popup",
+  "version": "1.0.0",
+  "description": "View and create Google Keep notes directly from a popup.",
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "cookies",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "*://keep.google.com/*",
+    "*://notes-pa.clients6.google.com/*",
+    "*://*.google.com/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Keep</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body class="w-[800px] h-[600px] m-0 p-4 font-sans bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 box-border flex flex-col antialiased transition-colors duration-200">
+    <header class="flex flex-col gap-2 pb-3 mb-4 border-b border-slate-200 dark:border-slate-800 shrink-0 sticky top-0 z-10 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md -mx-4 px-4 pt-4 -mt-4">
+        <div class="flex justify-between items-center">
+            <h2 class="m-0 text-xl font-semibold text-slate-800 flex items-center text-balance">
+                <svg class="size-6 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 21c0 .5.4 1 1 1h4c.6 0 1-.5 1-1v-1H9v1zm3-19C8.1 2 5 5.1 5 9c0 2.4 1.2 4.5 3 5.7V17c0 .5.4 1 1 1h6c.6 0 1-.5 1-1v-2.3c1.8-1.3 3-3.4 3-5.7 0-3.9-3.1-7-7-7z"/>
+                </svg>
+                Google Keep
+            </h2>
+            <div class="flex gap-1">
+                <button id="theme-toggle-btn" aria-label="Đổi giao diện" class="size-8 flex items-center justify-center rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-200 cursor-pointer focus:outline-none">
+                    <!-- Sun icon by default (will be toggled via JS) -->
+                    <svg id="theme-icon-sun" class="size-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <!-- Moon icon -->
+                    <svg id="theme-icon-moon" class="size-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+                <button id="refresh-btn" aria-label="Làm mới dữ liệu" class="size-8 flex items-center justify-center rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-200 cursor-pointer focus:outline-none">
+                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="user-profile" class="hidden items-center gap-2">
+            <img id="user-avatar" class="size-6 rounded-full object-cover hidden" src="" alt="Avatar">
+            <div id="user-initial" class="size-6 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs font-semibold uppercase shrink-0">?</div>
+            <span id="user-email" class="text-xs font-medium text-slate-500 dark:text-slate-400 truncate"></span>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="relative mt-2">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="size-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input type="search" id="search-input" class="block w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg leading-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors duration-200" placeholder="Tìm kiếm ghi chú...">
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto pr-1 -mr-1">
+        <div id="status-container" class="flex flex-col items-center justify-center h-full text-center">
+            <div id="status-icon" class="mb-3 text-slate-300">
+                <svg class="size-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <p id="status-message" class="text-sm text-slate-500 mb-5 text-pretty">Đang kiểm tra phiên đăng nhập...</p>
+            <button id="login-btn" class="hidden bg-blue-600 text-white border-none py-2 px-4 rounded-md text-sm font-medium cursor-pointer hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Đăng nhập Google Keep
+            </button>
+        </div>
+        
+        <div id="content-container" class="hidden flex-col gap-4">
+            <!-- Create Note Form (Collapsible) -->
+            <div id="create-note-container" class="border border-slate-200 dark:border-slate-700/60 rounded-xl p-3 shadow-sm bg-white dark:bg-slate-900 focus-within:shadow-md transition-shadow duration-200 relative">
+                
+                <!-- Expanded fields (hidden by default) -->
+                <div id="create-note-expanded" class="hidden flex-col">
+                    <label for="note-title" class="sr-only">Tiêu đề ghi chú</label>
+                    <input type="text" id="note-title" placeholder="Tiêu đề" class="w-full border-none outline-none font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 mb-2 bg-transparent text-sm">
+                </div>
+
+                <!-- Always visible body input -->
+                <label for="note-body" class="sr-only">Nội dung ghi chú</label>
+                <textarea id="note-body" placeholder="Tạo ghi chú..." class="w-full border-none outline-none font-normal text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 resize-none h-auto min-h-[24px] bg-transparent text-sm overflow-hidden" rows="1"></textarea>
+                
+                <!-- Expanded footer (hidden by default) -->
+                <div id="create-note-footer" class="hidden justify-end mt-2 gap-2">
+                    <button id="close-note-btn" class="text-slate-500 dark:text-slate-400 font-medium py-1 px-3 rounded cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 text-sm focus:outline-none">
+                        Đóng
+                    </button>
+                    <button id="save-note-btn" class="text-yellow-600 dark:text-yellow-500 font-medium py-1 px-3 rounded cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-500/10 transition-colors duration-200 text-sm focus:outline-none">
+                        Lưu
+                    </button>
+                </div>
+            </div>
+
+            <div id="notes-list" class="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
+                <!-- Notes will be rendered here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Note Detail Modal -->
+    <div id="note-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <!-- Backdrop -->
+        <div id="note-modal-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 w-full max-w-2xl max-h-full rounded-2xl shadow-xl flex flex-col overflow-hidden transition-all duration-300 transform scale-95 opacity-0" id="note-modal-content">
+            
+            <div class="flex-1 overflow-y-auto p-6">
+                <h2 id="modal-note-title" class="text-xl font-bold text-slate-900 dark:text-white mb-4 text-balance break-words"></h2>
+                <div id="modal-note-body" class="text-base text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words"></div>
+            </div>
+            
+            <div class="border-t border-slate-100 dark:border-slate-800 p-4 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center gap-2 shrink-0">
+                <div id="modal-note-metadata" class="text-xs text-slate-400 dark:text-slate-500 flex flex-col gap-0.5">
+                    <!-- Metadata will be injected here -->
+                </div>
+                <div class="flex gap-2">
+                    <button id="modal-delete-btn" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer focus:outline-none">
+                        Xoá
+                    </button>
+                    <button id="modal-copy-btn" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer focus:outline-none">
+                        Copy
+                    </button>
+                    <button id="modal-close-btn" class="px-4 py-2 text-sm font-medium text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer focus:outline-none">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
